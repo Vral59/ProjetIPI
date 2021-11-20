@@ -32,15 +32,15 @@ int main(int argc, char *argv[]) {
    /* Déclaration des variables */
 
 	char chaine[TAILLE_MAX] = "";
-   fgets(chaine, TAILLE_MAX, fentr); /* On récupère la première ligne */
-   int n = chaine[2] - '0'; /* le caractère après le a est transformé en int */
+   fgets(chaine, TAILLE_MAX, fentr); /* On récupère la première ligne avec le 'a n' */
+   int n = chaine[2] - '0'; /* le caractère n et on le transforme en int avec de la magie*/
    int fin = '\225';
    int val;
    int action[n*128];
    int reduit1[n];
    int reduit2[n];
-   int decale[n*128];
-   int branchement[n*128];
+   int decale[n*128]; /* Ici on a aucune idée de la taille qu'il faut, je ferai des liste chainé plus tard, ici on prend large */
+   int branchement[n*128]; /* Idem */
 
    /* Remplissage des tableaux contenant les actions de l'automate */
 
@@ -62,6 +62,7 @@ int main(int argc, char *argv[]) {
    }
    printf("\n");
 
+	/* Ici ça ne fonctionne plus, on cherche les '\225' */
    int i = 0;
    while((val = fgetc(fentr)) != fin){
       decale[i] = val;
