@@ -21,12 +21,12 @@ int main(int argc, char *argv[]) {
    /* Test d'entrée */
 
 	if (argc!=2) {
-    		printf("Il me faut un fichier");
-    		exit(1);
+    	printf("Il me faut un fichier");
+    	exit(1);
 	}
 	if ((fentr= fopen(argv[1], "r")) == NULL) {
-     		printf("Je ne peux pas ouvrir %s", argv[1]);
-     		exit(1);
+     	printf("Je ne peux pas ouvrir %s", argv[1]);
+     	exit(1);
 	}
 
    /* Déclaration des variables */
@@ -34,8 +34,7 @@ int main(int argc, char *argv[]) {
 	char chaine[TAILLE_MAX] = "";
    fgets(chaine, TAILLE_MAX, fentr); /* On récupère la première ligne avec le 'a n' */
    int n = chaine[2] - '0'; /* le caractère n et on le transforme en int avec de la magie*/
-   int fin = '\225';
-   int val;
+   char val;
    int action[n*128];
    int reduit1[n];
    int reduit2[n];
@@ -64,9 +63,10 @@ int main(int argc, char *argv[]) {
 
 	/* Ici ça ne fonctionne plus, on cherche les '\225' */
    int i = 0;
-   while((val = fgetc(fentr)) != fin){
-      decale[i] = val;
-      printf("%2d",val);
+   while((val = fgetc(fentr)) != '\225'){
+      int tmp = val;
+      decale[i] = tmp;
+      printf("voici le char : %2c, voici le int : %2i \n",val,tmp);
       i++;
    }
 

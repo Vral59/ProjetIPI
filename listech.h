@@ -5,7 +5,9 @@ typedef struct Element Element;
 
 struct Element
 {
-    int nombre;
+    int s;
+    int A;
+    int sp;
     Element *suivant;
 };
 
@@ -26,14 +28,16 @@ Liste *initialisation()
         exit(EXIT_FAILURE);
     }
 
-    element->nombre = 0;
+    element->s = 0;
+    element->A = 0;
+    element->sp = 0;
     element->suivant = NULL;
     liste->premier = element;
 
     return liste;
 }
 
-void insertion(Liste *liste, int nvNombre)
+void insertion(Liste *liste, int nvs, int nvA, int nvsp)
 {
     /* Création du nouvel élément */
     Element *nouveau = malloc(sizeof(*nouveau));
@@ -41,7 +45,9 @@ void insertion(Liste *liste, int nvNombre)
     {
         exit(EXIT_FAILURE);
     }
-    nouveau->nombre = nvNombre;
+    nouveau->s = nvs;
+    nouveau->A = nvA;
+    nouveau->sp = nvsp;
 
     /* Insertion de l'élément au début de la liste */
     nouveau->suivant = liste->premier;
@@ -63,7 +69,7 @@ void suppression(Liste *liste)
     }
 }
 
-
+/*
 void afficherListe(Liste *liste)
 {
     if (liste == NULL)
@@ -80,6 +86,7 @@ void afficherListe(Liste *liste)
     }
     printf("NULL\n");
 }
+*/
 
 
 
