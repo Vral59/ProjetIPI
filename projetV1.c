@@ -5,7 +5,7 @@
 
 /*
 @requires One arguements, an automata .aut
-@assings ??
+@assings Nothing
 @ensures recognize langage 
 */
 
@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 
    /* Remplissage des tableaux contenant les actions de l'automate */
 
-   for (int i = 0; i < (n-1)*128; i++){
+   for (int i = 0; i < n*128; i++){
       action[i] = fgetc(fentr);
       printf("%3d",action[i]); // Les prochains printf seront la pour afficher les valeurs et tout vérifier
    }
@@ -79,10 +79,10 @@ int main(int argc, char *argv[]) {
    char value1;
    while ((value1 = fgetc(fentr)) != '\255'){
       int etat1 = (int)value1; // Cast explicite
-      int *lettre = fgetc(fentr); //Le numéro du caractère va donner sa place dans le tableau 2D
+      int lettre = fgetc(fentr); //Le numéro du caractère va donner sa place dans le tableau 2D
       int etat2 = fgetc(fentr);
-      printf("%i %i %i \n",etat1,lettre,etat2);
-      decale[etat1][lettre] = etat2;
+      printf("%i %d %i \n",etat1,lettre,etat2);
+      decale[etat1][&lettre] = etat2;
    }
    
    printf("\n\n");
@@ -92,13 +92,61 @@ int main(int argc, char *argv[]) {
    char value2;
    while ((value2 = fgetc(fentr)) != '\255'){
       int etat1 = (int)value2; // Cast explicite
-      int *lettre = fgetc(fentr);
+      int lettre = fgetc(fentr);
       int etat2 = fgetc(fentr);
-      printf("%i %i %i \n",etat1,lettre,etat2);
-      branchement[etat1][lettre] = etat2;
+      printf("%i %d %i \n",etat1,lettre,etat2);
+      branchement[etat1][&lettre] = etat2;
    }
 
    /* On a finit de lire tout le fichier */
+
+   /* Initialisation de l'entréé */
+   char buf[256];
+   char langage[256];
+   printf("Entrer le langage à tester : \n");
+   fgets(buf,256,stdin);
+   sscanf(buf,"%s",langage);
+   printf("%s \n",langage); // vérification de l'entrée
+
+   /* test création du l'algo*/
+
+   /*
+         ATTENTION ça ne compile pas encore il y a des soucis de type et de pointeur
+   */
+
+   int valAction; // codera l'action à faire
+   int etat = 0; // état initial est 0
+   int lettre = fgetc(langage); // on récupère la 1ère lettre
+
+   stack pileE; // création de la pile
+   pileE.top = -1;
+   valAction = action[etat*128 + lettre];
+   push(&pileE,valAction);
+   while (valAction != 0 || valAction != 1){ 
+      if (valAction == 2){ // Si on décale
+         push(&pileE,decale[etat][lettre]); // on met dans la pile le prochain état
+         lettre = fgetc(langage); // on change de lettre
+      }
+      else {
+         int rs = reduit1[etat]; // 1ere composante de réduit
+         int rc = reduit2[etat]; // 2ème composante de réduit
+         int rsp;
+         for(int i = 0; i < rs;i++){ // on dépile rs fois
+            rsp = pop(&pileE);
+         }
+         etat = rsp;
+         push(&pileE, branchement[rsp][rc]); // on met dans la pile le prochain état et on ne change pas de lettre
+
+      }
+      valAction = pop(&pileE); // on récupère le dernière état
+   }
+   if (valAction == 0){
+      printf("Rejeté");
+   }
+   else {
+      printf("Accepté");
+   }
+
 
 
    /* Libération de la mémoire */
