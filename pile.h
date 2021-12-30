@@ -1,39 +1,22 @@
 #include<stdlib.h>
 #include<stdio.h>
 
-struct stack {
-    int t[1000];
-    int top;
-};
 
-typedef struct stack stack;
+typedef struct elementStack{
+    int etatValue;
+    struct elementStack *next;
+} elementStack;
 
 
-int emptystack(stack *p){
-    return p->top == -1;
-}
+typedef struct Stack {
+    elementStack *first;
+} Stack;
 
-void push(stack *p, int el){
-    if (p->top >= 1000-1)
-        return;
-    p->top++;
-    p->t[p->top] = el;
-}
+/* création d'une pile vide */
+Stack *stackInit();
 
-int pop(stack *p){
-    if (p->top == -1)
-        return 1;
-    int el;
-    el = p->t[p->top];
-    p->top--;
-    return el;
-}
+/* rajoute un élément dans la pile */
+void stackPush(Stack *stack, int elementValue);
 
-void afficher(stack p){
-    int i;
-    int a = p.top;
-    printf("%d \n",a);
-    for(i=p.top;i>=0;i--){;
-        printf("\n%d",p.t[i]);
-    }
-}
+/* retire un élément de la pile */
+int stackPop(Stack *stack);
