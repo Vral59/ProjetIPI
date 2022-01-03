@@ -12,11 +12,11 @@ typedef struct Stack {
     elementStack *first;
 } Stack;
 
-/* création d'une pile vide */
+/* Initialization of a stack */
 Stack *stackInit();
 
-/* rajoute un élément dans la pile */
+/* Add and int at the top of the stack */
 void stackPush(Stack *stack, int elementValue);
 
-/* retire un élément de la pile */
+/* Pop the top of the stack */
 int stackPop(Stack *stack);

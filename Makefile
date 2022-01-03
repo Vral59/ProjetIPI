@@ -1,4 +1,4 @@
-# Varible
+# Variable
 
 CC=gcc
 CFLAGS = -Wall -Wextra
@@ -19,6 +19,6 @@ main.o: main.c pile.h
 	$(CC) $(CFLAGS) -c main.c
 
 
-#Clean des fichier temp
+#Clean *.o files
 clean:
 	rm -rf *.o

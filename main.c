@@ -3,17 +3,29 @@
 #include "pile.h"
 
 /*
+@requires : pointer on 2D matrix and the size
+@assings : Free the momory
+@ensures : nothing
+*/
+void freeMatrix(int **matrix,int size){
+    for (int i =0 ; i < size; i++){
+        free(matrix[i]);
+    }
+    free(matrix);
+}
+
+/*
 @requires : pointer on FILE not NULL
 @assings : nothing, just move cursor in the FILE
 @ensures : 'n' the number of states
 */
-int readNbEtatTot(FILE *fentr){
-    int nombreEtatTotal = 0;
+int readNbStateTot(FILE *fentr){
+    int numberStateTotal = 0;
     char val;
-    while ((val = fgetc(fentr)) != '\n'){ /* n peut s'écrire sur plusieurs caractères */
-        nombreEtatTotal = nombreEtatTotal*10 + val - '0'; /* le caractère n et on le transforme en int */
+    while ((val = fgetc(fentr)) != '\n'){ /* because "n" can be written over several finish characters */
+        numberStateTotal = numberStateTotal*10 + val - '0'; /* with the power of 10 we transforme n into an int  */
     }
-    return nombreEtatTotal;
+    return numberStateTotal;
 }
 
 /*
@@ -21,8 +33,8 @@ int readNbEtatTot(FILE *fentr){
 @assings : fill in the array and move the cursor in the FILE
 @ensures : Put the great value in the array
 */
-void readAction(FILE *fentr,int *action,int nombreEtatTotal){
-    for (int i = 0; i < nombreEtatTotal*128; i++){
+void readAction(FILE *fentr,int *action,int numberStateTotal){
+    for (int i = 0; i < numberStateTotal*128; i++){
         action[i] = fgetc(fentr);
     }
 }
@@ -33,8 +45,8 @@ void readAction(FILE *fentr,int *action,int nombreEtatTotal){
 @assings : fill in the array and move the cursor in the FILE
 @ensures : Put the great value in the array
 */
-void readReduit(FILE *fentr,int *reduit,int nombreEtatTotal){
-    for (int i = 0; i < nombreEtatTotal; i++){
+void readReduit(FILE *fentr,int *reduit,int numberStateTotal){
+    for (int i = 0; i < numberStateTotal; i++){
         reduit[i] = fgetc(fentr);
     }
 }
@@ -47,10 +59,10 @@ void readReduit(FILE *fentr,int *reduit,int nombreEtatTotal){
 void readBranDecal(FILE *fentr,int **matrice){
     char value;
     while ((value = fgetc(fentr)) != '\255'){
-        int etat1 = (int)value; // Cast explicite
-        int lettre = fgetc(fentr); //Le numéro du caractère va donner sa place dans le tableau 2D
-        int etat2 = fgetc(fentr);
-        matrice[etat1][lettre] = etat2;
+        int state1 = (int)value; // explicit Cast
+        int lettre = fgetc(fentr); //The number of the character will give its place in the matrix
+        int state2 = fgetc(fentr);
+        matrice[state1][lettre] = state2;
     }
 }
 
@@ -59,36 +71,35 @@ void readBranDecal(FILE *fentr,int **matrice){
 @assings : nothing
 @ensures : Accept or Not the langage
 */
-
 void algoL1(int *action, int* reduit1, int *reduit2, int **decale, int **branchement, char langage[256]){
 
-    int etat = 0; // état initial est 0
+    int state = 0; // initial state is 0
     int cpt = 0;
     int valAct = 0;
-    int lettre = langage[0]; // on récupère la 1ère lettre
-    Stack *pileEtat = stackInit();
-    valAct = action[etat*128 + lettre];
-    stackPush(pileEtat,etat);
-    while (valAct != 0 && valAct != 1){ // Tant que l'action n'est pas refusé ou accepté
-        if (valAct == 2){ // Si on décale
-            stackPush(pileEtat,decale[etat][lettre]); // on met dans la pile le prochain état
+    int lettre = langage[0]; // We take the first letter
+    Stack *pileState = stackInit();
+    valAct = action[state*128 + lettre];
+    stackPush(pileState,state);
+    while (valAct != 0 && valAct != 1){ // While the action is not accept or refuse 
+        if (valAct == 2){ // if we shift
+            stackPush(pileState,decale[state][lettre]); // we put the next state in the stack
             cpt ++;
-            lettre = langage[cpt]; // on change de lettre
+            lettre = langage[cpt]; // we go to the next letter
         }
-        else { // si on réduit 
-            int rs = reduit1[etat]; // 1ere composante de réduit
-            int rc = reduit2[etat]; // 2ème composante de réduit
-            int rsp = etat;
-            for(int i = 0; i <= rs;i++){ // on dépile rs fois
-                rsp = stackPop(pileEtat);
+        else { // if we reduce
+            int reduceState = reduit1[state]; // 1st reduction component
+            int reduceChar = reduit2[state]; // 2nd reduction component
+            int reduceStatePrime = state;
+            for(int i = 0; i <= reduceState;i++){ // we pop reduceState times
+                reduceStatePrime = stackPop(pileState);
             }
-            etat = rsp; // l'état change ==> Etat courant ie haut de la pile
-            stackPush(pileEtat,etat);
-            stackPush(pileEtat, branchement[etat][rc]); // on met dans la pile le prochain état et on ne change pas de lettre
+            state = reduceStatePrime; // state change ==> current state is the top of the stack
+            stackPush(pileState,state);
+            stackPush(pileState, branchement[state][reduceChar]); // we put the next state in the stack and do not change the letter
         }
-        etat = stackPop(pileEtat); // On récupère le nouvel état
-        stackPush(pileEtat,etat);
-        valAct = action[etat*128+lettre]; // l'action change
+        state = stackPop(pileState); // We pop the new state
+        stackPush(pileState,state);
+        valAct = action[state*128+lettre]; // Action change
     }
     if (valAct == 0){
         printf("Rejeté : Caractère en position %i \n\n",cpt+1);
@@ -102,7 +113,7 @@ void algoL1(int *action, int* reduit1, int *reduit2, int **decale, int **branche
 int main(int argc, char *argv[]) {  
 	FILE* fentr = NULL;
 
-    /* Test d'entrée */
+    /* Input test */
 	if (argc!=2) {
     	printf("Il faut un fichier .aut en entrée");
     	exit(1);
@@ -112,71 +123,70 @@ int main(int argc, char *argv[]) {
      	exit(1);
 	}
 
-   /* Récupération de 'n' le nombre d'état total */
+   /* Find 'n' the total number of states */
 
-	fgetc(fentr); /* On passe le 'a' */
-    fgetc(fentr); /* On passe le ' ' */
+	fgetc(fentr); /* We read the 'a' */
+    fgetc(fentr); /* We read the ' ' */
 
-    int nombreEtatTotal = readNbEtatTot(fentr);
+    int numberStateTotal = readNbStateTot(fentr);
 
-    /* déclaration des différentes valeurs contenu dans le fichier */
+    /* Declaration of the variables that will contain the values of the files */
     int *action = NULL;
     int *reduit1 = NULL;
     int *reduit2 = NULL;
     int **decale = NULL;
     int **branchement = NULL;
 
-    action = malloc((nombreEtatTotal*128) * sizeof(int));
-    reduit1 = malloc((nombreEtatTotal*sizeof(int)));
-    reduit2 = malloc((nombreEtatTotal*sizeof(int)));
+    action = malloc((numberStateTotal*128) * sizeof(int));
+    reduit1 = malloc((numberStateTotal*sizeof(int)));
+    reduit2 = malloc((numberStateTotal*sizeof(int)));
  
-    decale = malloc(nombreEtatTotal * sizeof(int*));
+    decale = malloc(numberStateTotal * sizeof(int*));
     for(int i = 0; i < 256; i++){
-        decale[i] = malloc(128 * sizeof(char));
+        decale[i] = malloc(256 * sizeof(char));
     }
 
-    branchement = malloc(nombreEtatTotal * sizeof(int*));
+    branchement = malloc(numberStateTotal * sizeof(int*));
     for(int i = 0; i < 256; i++){
-        branchement[i] = malloc(128 * sizeof(char));
+        branchement[i] = malloc(256 * sizeof(char));
     }
 
-    /* Remplissage des tableaux contenant les actions de l'automate */
+    /* Table fills */
 
-    /* Récupération de Action */
-    readAction(fentr,action,nombreEtatTotal);
-    fgetc(fentr); /* on vire le '\n' */
+    /* Action fills */
+    readAction(fentr,action,numberStateTotal);
+    fgetc(fentr); /* We read the '\n' */
 
-    /* Récupération de réduit1 et réduit2 */
-    readReduit(fentr,reduit1,nombreEtatTotal);
-    fgetc(fentr); /* on vire le '\n' */
-    readReduit(fentr,reduit2,nombreEtatTotal);
-    fgetc(fentr); /* on vire le '\n' */
+    /* Reduit1 and Reduit2 fills */
+    readReduit(fentr,reduit1,numberStateTotal);
+    fgetc(fentr); /* We read the '\n' */
+    readReduit(fentr,reduit2,numberStateTotal);
+    fgetc(fentr); /* We read the '\n' */
 
-    /* Récupération de decale*/
+    /* Shift fills*/
     readBranDecal(fentr, decale);
-    fgetc(fentr); /* On lit les deux '\255' qu'il reste */
+    fgetc(fentr); /* We read the remaining two '\255' */
     fgetc(fentr);
 
-    /* récupération de branchement */
+    /* Branchement fills */
     readBranDecal(fentr, branchement);
 
-    /* On a finit de lire tout le fichier */
+    /* We have finished reading the whole file */
 
-    /* On fait une boucle infini pour proposer plusieurs langages à tester */
+    /* infinite loop to offer several input */
     while (1){
-        /* Initialisation de l'entréé */
         char buf[256];
         printf("Entrer le langage à tester : \n");
         fgets(buf,sizeof(buf),stdin);
-        algoL1(action,reduit1,reduit2,decale,branchement,buf); /* On appel l'algo */
+        algoL1(action,reduit1,reduit2,decale,branchement,buf); /* Use of algo */
     }
 
-    /* Libération de la mémoire */
+    /* Free memory */
     fclose(fentr);
     free(action);
     free(reduit1);
     free(reduit2);
-    free(decale); // ATTENTION IL FAUT QUE JE MODIFIE ET FREE TOUTES LES CASES
-    free(branchement);
+    freeMatrix(decale,256);
+    freeMatrix(branchement,256);
 	return 0; 
 }
