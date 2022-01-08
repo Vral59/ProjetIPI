@@ -8,7 +8,7 @@
 @ensures : nothing
 */
 void freeMatrix(int **matrix,int size){
-    for (int i =0 ; i < size; i++){
+    for (int i = 0; i < size; i++){
         free(matrix[i]);
     }
     free(matrix);
@@ -57,12 +57,20 @@ void readReduit(FILE *fentr,int *reduit,int numberStateTotal){
 @ensures : Put the great value in the array
 */
 void readBranDecal(FILE *fentr,int **matrice){
-    char value;
-    while ((value = fgetc(fentr)) != '\255'){
-        int state1 = (int)value; // explicit Cast
-        int lettre = fgetc(fentr); //The number of the character will give its place in the matrix
-        int state2 = fgetc(fentr);
-        matrice[state1][lettre] = state2;
+    int bool = 1;
+    while (bool){
+        char state1 = fgetc(fentr);
+        char lettre = fgetc(fentr);
+        char state2 = fgetc(fentr);
+        if ((state1 == '\255')&&(lettre == '\255')&&(state2 == '\255')){
+            bool = 0;
+        }
+        else{
+            int intState1 = (int)state1;
+            int intLettre = (int)lettre;
+            int intState2 = (int)state2;
+            matrice[intState1][intLettre] = intState2;
+        }
     }
 }
 
@@ -102,10 +110,10 @@ void algoL1(int *action, int* reduit1, int *reduit2, int **decale, int **branche
         valAct = action[state*128+lettre]; // Action change
     }
     if (valAct == 0){
-        printf("Rejeté : Caractère en position %i \n\n",cpt+1);
+        printf("Rejeted : Caractère en position %i \n\n",cpt+1);
     }
     else {
-        printf("Accepté \n\n");
+        printf("Accepted \n\n");
     }
 }
 
@@ -115,14 +123,15 @@ int main(int argc, char *argv[]) {
 
     /* Input test */
 	if (argc!=2) {
-    	printf("Il faut un fichier .aut en entrée");
+    	printf("Il faut un fichier .aut en entrée \n");
     	exit(1);
 	}
 	if ((fentr= fopen(argv[1], "r")) == NULL) {
-        printf("Erreur dans l'ouverture %s", argv[1]);
+        printf("Erreur dans l'ouverture %s \n", argv[1]);
      	exit(1);
 	}
 
+    printf("File %s correctly read. \n",argv[1]);
    /* Find 'n' the total number of states */
 
 	fgetc(fentr); /* We read the 'a' */
@@ -131,24 +140,18 @@ int main(int argc, char *argv[]) {
     int numberStateTotal = readNbStateTot(fentr);
 
     /* Declaration of the variables that will contain the values of the files */
-    int *action = NULL;
-    int *reduit1 = NULL;
-    int *reduit2 = NULL;
-    int **decale = NULL;
-    int **branchement = NULL;
-
-    action = malloc((numberStateTotal*128) * sizeof(int));
-    reduit1 = malloc((numberStateTotal*sizeof(int)));
-    reduit2 = malloc((numberStateTotal*sizeof(int)));
+    int *action = (int *)malloc((numberStateTotal*128) * sizeof(int));
+    int *reduit1 = (int *)malloc((numberStateTotal*sizeof(int)));
+    int *reduit2 = (int *)malloc((numberStateTotal*sizeof(int)));
  
-    decale = malloc(numberStateTotal * sizeof(int*));
+    int **decale = (int**)malloc(256 * sizeof(int*));
     for(int i = 0; i < 256; i++){
-        decale[i] = malloc(256 * sizeof(char));
+        decale[i] = (int *)malloc(256 * sizeof(int));
     }
 
-    branchement = malloc(numberStateTotal * sizeof(int*));
+    int **branchement = (int**)malloc(256 * sizeof(int*));
     for(int i = 0; i < 256; i++){
-        branchement[i] = malloc(256 * sizeof(char));
+        branchement[i] = (int *)malloc(256 * sizeof(int));
     }
 
     /* Table fills */
@@ -165,8 +168,6 @@ int main(int argc, char *argv[]) {
 
     /* Shift fills*/
     readBranDecal(fentr, decale);
-    fgetc(fentr); /* We read the remaining two '\255' */
-    fgetc(fentr);
 
     /* Branchement fills */
     readBranDecal(fentr, branchement);
@@ -174,11 +175,16 @@ int main(int argc, char *argv[]) {
     /* We have finished reading the whole file */
 
     /* infinite loop to offer several input */
-    while (1){
-        char buf[256];
-        printf("Entrer le langage à tester : \n");
+    int repeat = 1;
+    char buf[256];
+    while (repeat){
+        printf("Please enter your inputs. \n");
         fgets(buf,sizeof(buf),stdin);
         algoL1(action,reduit1,reduit2,decale,branchement,buf); /* Use of algo */
+        printf("Do you want to continue ? (y/n)\n");
+        fgets(buf,sizeof(buf),stdin);
+        if (buf[0] != 'y' || buf[1] != '\n') repeat = 0;
+        printf("\n");
     }
 
     /* Free memory */
