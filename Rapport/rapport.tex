@@ -1,0 +1,49 @@
+\documentclass{report}
+\newif\ifsolo
+
+\solofalse
+
+\input{src/preamble.tex}
+
+\begin{document}
+
+\pagestyle{empty}
+\begin{center}
+
+    ~ \vfill
+
+    \textsc{\LARGE ENSIIE}\\[1.5cm]
+    \textsc{\Large Promotion 2024}\\[0.5cm]
+
+    \rule{\linewidth}{0.5mm} \\[0.4cm]
+    {\huge \bfseries Rapport Projet IPI Semestre 1 }\\[0.1cm]
+    \rule{\linewidth}{0.5mm} \\[0.4cm]
+    \textsc{\large Valentin Buchon}\\[1.5cm]
+
+
+    \vfill
+    \includegraphics[width=5cm]{ENSIIE.png}\\[1cm]
+    \vfill
+    {\large Année 2021-2022}\\
+\end{center}
+\newpage
+\dominitoc
+\tableofcontents
+\faketableofcontents
+
+\begin{minipage}{\textwidth}
+	Voici le rapport du projet de semestre 1 dans l'UE IPI par Valentin Buchon
+\end{minipage}
+
+\newpage
+
+\pagestyle{main}
+
+\input{src/chapterlist.tex}
+
+\newpage
+\pagestyle{empty}
+
+\printindex
+
+\end{document}

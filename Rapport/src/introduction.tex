@@ -1,0 +1,64 @@
+\renewcommand{\chaptername}{Partie}
+
+\ifsolo
+    ~
+
+    \vspace{1cm}
+
+    \begin{center}
+        \textbf{\LARGE Introduction} \\[1em]
+    \end{center}
+    \tableofcontents
+\else
+    \chapter{Introduction}
+
+    \minitoc
+\fi
+\thispagestyle{empty}
+
+\ifsolo \newpage \setcounter{page}{1} \fi
+
+\section{Présentation du sujet}
+\subsection{Objectif}
+Le \href{http://web4.ensiie.fr/~guillaume.burel/cours/IPI/projet_2021.html}{\textbf{sujet}} du projet a pour objectif d'implémenter un programme en C qui exécute et utilise des automates LR(1) dans l'optique de reconnaître des langages.
+\subsection{Utilisation}
+L'utilisateur devra passer en paramètre de l'exécutable un fichier .aut qui contiendra la description d'un automate dans un format que nous détaillerons plus tard. Après cela, l'utilisateur pourra donner sur l'entrée standard la ligne qu'il veut vérifier. Ainsi le programme affichera \texttt{Accepted} ou \texttt{Rejected} si le langage proposé est reconnu par l'automate.
+\subsection{Description de l'automate}
+Un automate LR1 est donné par les éléments suivants :
+\begin{itemize}
+	\item Un ensemble fini d'états
+	\item Un état initial
+	\item Un alphabet d'entrée
+	\item Un autre alphabet de symboles dits non-terminaux
+	\item Une fonction action qui à chaque état et chaque lettre associe une action : cette action peut être soit Rejette, soit Accepte, soit Décale, soit Réduit
+	\item Une fonction (partielle) décale qui à un état et une lettre associe un état ; cette fonction n'a besoin d'être définie que quand l'action associée à l'état et la lettre est Décale
+	\item une fonction (partielle) réduit qui à un état associe un entier et un symbole non-terminal ; cette fonction n'a besoin d'être définie que quand l'action associée à l'état et la lettre est Réduit
+	\item Une fonction (partielle) branchement qui à un état et un symbole non-terminal associe un état
+\end{itemize} 
+
+Un tel automate fonctionne à l'aide d'une pile d'états. Initialement, cette pile contiendra un unique élément, à savoir l'état initial. Au cours de l'exécution, l'état courant sera celui situé au sommet de la pile.
+
+\subsection{Format du fichier}
+
+Les états seront représentés par un entier sur un octet. (On aura donc au maximum 256 états.) L'état initial sera l'état 0.
+
+Pour l'alphabet d'entrée mais aussi pour les symboles non-terminaux, on utilisera les caractères dont le code ASCII est compris entre 0 et 127 inclus.
+
+Les actions seront représentées par des entiers : Rejette = 0, Accepte = 1, Décale = 2 et Réduit = 3.
+
+On supposera qu'on ne dépilera jamais plus de 256 états lors d'une réduction, on pourra donc représenter la première composante de réduit(s,c) sur un octet.
+
+Un fichier contenant une description d'un automate LR(1) respectera le format suivant :
+
+\begin{itemize}
+	\item une première ligne contenant a n où n est le nombre d'états de l'automate
+	\item n × 128 octets représentant les valeurs de action(s,c) pour tout état s et toute lettre c (dans l'ordre action(0,0) action(0, 1) action(0, 2) ... action(0, 127) action(1, 0) action(1, 1) ... action(n,127)), le tout suivi d'un retour à la ligne
+	\item n octets représentant la première composante de réduit(s) pour tout état s, le tout suivi d'un retour à la ligne
+	\item n octets représentant la deuxième composante de réduit(s) pour tout état s, le tout suivi d'un retour à la ligne
+	\item Une séquence de groupement de trois octets représentant la fonction partielle décale ; un groupement de trois octets s c s' indique que décale(s,c) = s' ; cette séquence se terminera par le groupement de trois octets '\textbackslash255' '\textbackslash255' '\textbackslash255'
+	\item Une séquence de groupement de trois octets représentant la fonction partielle branchement ; un groupement de trois octets s A s' indique que branchement(s,A) = s' ; cette séquence se terminera par le groupement de trois octets '\textbackslash255' '\textbackslash255' '\textbackslash255'.
+\end{itemize}
+
+
+  
+
