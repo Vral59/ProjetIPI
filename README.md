@@ -1,2 +1,9 @@
 # ProjetIPI
-Execute LR(1) 
+
+
+***
+Who to use :
+* Compile with : ```make```
+* Excecute with :```./projet <path/to/automaton.aut>```
+* Read the instruction
+***
