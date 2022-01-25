@@ -8,7 +8,7 @@ all: $(EXEC)
 
 # Compilation finale
 projet: main.o pile.o
-	$(CC) $(CFLAGS) -g -o projet main.o pile.o
+	$(CC) $(CFLAGS) -o projet main.o pile.o
 
 # Compilation de pile.o
 pile.o: pile.c pile.h
